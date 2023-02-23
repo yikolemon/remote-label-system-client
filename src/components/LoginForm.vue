@@ -38,6 +38,7 @@
 
 <script lang="ts">
 import { ref, getCurrentInstance } from "vue";
+import {useRouter} from 'vue-router'
 export default {
   props: {
     loginUser: {
@@ -49,15 +50,27 @@ export default {
       required: true,
     },
   },
-  setup() {
+  setup(props:any) {
     // @ts-ignore
-    const { ctx } = getCurrentInstance();
-
+    const { proxy } = getCurrentInstance();
+    const router =useRouter();
     // 触发登录方法
     const handleLogin = (formName: string) => {
-      ctx.$refs[formName].validate((valid: boolean) => {
+      proxy.$refs[formName].validate((valid: boolean) => {
         if (valid) {
-          alert("submit!");
+          proxy.$axios
+            .post(
+              "http://127.0.0.1:9000/user/doLogin",
+              props.loginUser
+            )
+            .then((res: any) => {
+              proxy.$message({
+                message: "登录成功",
+                type: "success",
+              });
+            });
+            //路由跳转
+            router.push("/");
         } else {
           console.log("error submit!!");
           return false;
